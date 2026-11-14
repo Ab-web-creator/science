@@ -1717,3 +1717,221 @@
   overflow-y: auto;
   scrollbar-width: thin;
 }
+
+/* Group 8 mission: the question on top, the answer to it at the end */
+.mission-banner {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fff3df;
+  border: 1.5px solid #f0c98a;
+  color: #6b4d18;
+  font-size: 17px;
+  line-height: 1.45;
+  transition: box-shadow 0.3s ease;
+}
+.mission-banner.focus {
+  box-shadow: 0 0 0 4px #ffe1a8;
+}
+.paper-work .mission-answer {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 2px solid #f0c98a;
+  border-radius: 12px;
+  background: #fff8ec;
+  color: #6b4d18;
+  font-size: 22px;
+  font-weight: 700;
+}
+.hap-log .chunk-heading {
+  white-space: nowrap;
+  font-size: 22px;
+}
+
+/* Play games: stars and Auto-play side by side in the heading */
+.game-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* "Show all" link under the card pager */
+/* Sits right under the first card, on the left */
+.show-all-cards {
+  display: block;
+  margin: 8px 0 0 4px;
+  min-height: 44px;
+  font-size: 18px;
+}
+.multi-card-browser .browser-grid {
+  row-gap: 18px;
+}
+
+/* Navbar lines up with the page content (same max width and side padding) */
+@media (min-width: 761px) {
+  .app-header {
+    max-width: 1280px;
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+}
+
+/* Gold stars: right the first time. Silver stars: right after trying again. */
+.star-count-pair {
+  display: inline-flex;
+  gap: 20px;
+  align-items: center;
+}
+.star-gold {
+  color: #a1843d;
+}
+.star-silver {
+  color: #7d8796;
+}
+
+/* Real-life missions: the story replaces the bare sum */
+.game-story {
+  margin: 14px auto 4px;
+  max-width: 640px;
+  font-size: 24px;
+  line-height: 1.5;
+  text-align: center;
+  color: #34482e;
+}
+.game-story b {
+  color: #6b4d18;
+}
+
+/* Star row on each Play game card */
+.star-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-top: 8px;
+  font-size: 20px;
+  line-height: 1;
+}
+.star-dot.gold {
+  color: #c99a2e;
+}
+.star-dot.silver {
+  color: #5f6b7c;
+}
+.star-dot.empty {
+  color: #e4e7dd;
+}
+.star-row small {
+  margin-left: 8px;
+  font-size: 15px;
+  color: #6b7d61;
+}
+
+/* Today's mission (Play page) */
+.today-mission {
+  min-height: 150px;
+  padding: 18px 20px;
+  border: 2px solid #f0c98a;
+  border-radius: 16px;
+  background: #fff8ec;
+}
+.today-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.today-mission h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #5a3f12;
+}
+.today-mission p {
+  margin: 4px 0 12px;
+  font-size: 17px;
+  color: #7a5a18;
+}
+.streak {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ffe9c2;
+  color: #8a4b0f;
+  font-weight: 700;
+  font-size: 16px;
+}
+.today-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.today-list a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1.5px solid #ecd3a4;
+  border-radius: 12px;
+  background: #fff;
+  color: #3e3222;
+  font-size: 18px;
+  font-weight: 600;
+}
+.today-list a b {
+  margin-left: auto;
+  font-size: 20px;
+  color: #b38a3a;
+}
+.today-list a.done {
+  background: #f5f8ef;
+  border-color: #c9dbb8;
+}
+.today-list a.done.gold b {
+  color: #c99a2e;
+}
+.today-list a.done.silver b {
+  color: #8a94a3;
+}
+.today-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #fff3df;
+  color: #8a5a12;
+}
+@media (max-width: 760px) {
+  .today-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Weekly summary for grown-ups (My space) */
+.week-summary {
+  padding: 14px 18px;
+  border: 1px dashed #c9d6bf;
+  border-radius: 14px;
+  background: #fbfcf7;
+}
+.week-summary p {
+  margin: 6px 0 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #3e5536;
+}
+.week-summary small {
+  font-size: 15px;
+  color: #6b7d61;
+}
+
+/* Play hub: more content now, so start at the top instead of centring */
+.play-hub {
+  justify-content: flex-start;
+}

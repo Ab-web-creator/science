@@ -4,13 +4,16 @@ import { useQuietRouter } from "@/hooks/use-quiet-router";
 import { useLearning } from "@/hooks/use-learning";
 import { percentageQuestions } from "@/lib/percentages";
 import { GameQuestion } from "@/components/learning/game-question";
+import { GameAutoplay } from "@/components/learning/game-autoplay";
+import { StarCount } from "@/components/learning/star-count";
+import { StarSummary } from "@/components/learning/star-summary";
 import { Robot } from "@/components/learning/robot";
 export function PercentageGame({ challenge }: { challenge: string }) {
   const router = useQuietRouter();
   const { percentagePractice, voiceAvailable, speak } = useLearning();
   const complete = challenge === "complete",
     question = complete ? 0 : Number(challenge) - 1;
-  const { stars, resetPractice, ...practice } = percentagePractice;
+  const { gold, silver, resetPractice, ...practice } = percentagePractice;
   const q = percentageQuestions[question];
   return (
     <section className="screen-page game-screen percentage-game">
@@ -18,7 +21,12 @@ export function PercentageGame({ challenge }: { challenge: string }) {
         <h1 className="inner-title">
           Percentage <span className="serif-word">mission.</span>
         </h1>
-        <span className="score-pill">✦ {stars} stars</span>
+        <div className="game-heading-actions">
+          <span className="score-pill">
+            <StarCount gold={gold} silver={silver} words />
+          </span>
+          <GameAutoplay />
+        </div>
       </div>
       {complete ? (
         <section className="finish-card">
@@ -26,7 +34,7 @@ export function PercentageGame({ challenge }: { challenge: string }) {
           <div className="eyebrow">MISSION COMPLETE</div>
           <h2>You did it, Azat Sa!</h2>
           <p>
-            You earned {stars} percentage stars.
+            <StarSummary gold={gold} silver={silver} topic="percentage" />
             <br />
             Try 30% of 90 on paper next.
           </p>

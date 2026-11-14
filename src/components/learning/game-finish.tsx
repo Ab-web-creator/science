@@ -1,14 +1,15 @@
 import type { LearningState } from "@/hooks/use-learning";
 import { Robot } from "./robot";
+import { StarSummary } from "./star-summary";
 export function GameFinish(state: LearningState) {
-  const { stars, restartGame } = state;
+  const { divisionStars, restartGame } = state;
   return (
     <section className="finish-card">
       <Robot />
       <div className="eyebrow">MISSION COMPLETE</div>
       <h2>You did it, Azat Sa!</h2>
       <p>
-        You have collected {stars} stars in this visit.
+        <StarSummary {...divisionStars} topic="division" />
         <br />
         Now try 432 : 18 on paper. Check your answer by multiplying!
       </p>

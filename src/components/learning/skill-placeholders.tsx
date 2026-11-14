@@ -5,6 +5,11 @@ const upcomingSkills = [
     description: "Parts, wholes, and equal shares.",
   },
   {
+    icon: "0,5",
+    title: "Decimal numbers",
+    description: "Numbers with a comma, like 2,5 and 0,75.",
+  },
+  {
     icon: "◷",
     title: "Tell the time",
     description: "Read clocks and work out durations.",

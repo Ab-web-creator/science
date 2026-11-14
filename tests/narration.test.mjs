@@ -143,3 +143,10 @@ test("a cue ending in a comma gets a short breath, a sentence a full pause", () 
   assert.ok(pauseAfter("120 fits inside 156,") < pauseAfter("10 × 12 = 120."));
   assert.equal(pauseAfter("Hurray!"), 800);
 });
+
+test("an unknown answer is read as 'equals what?'", () => {
+  assert.equal(
+    spokenMath("Take out that chunk: 168 − 120 = ?"),
+    "Take out that chunk: 168, minus 120, equals what?",
+  );
+});

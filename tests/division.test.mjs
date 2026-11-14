@@ -117,3 +117,27 @@ test("'10 groups' is cued exactly on 'so write 10 groups beside it'", () => {
     /120 fits inside 156, so write 10 groups beside it\./,
   );
 });
+
+test("group 8 mission: 1350 sweets in bags of 52 needs 26 bags", async () => {
+  const { missionAnswer } = await import(
+    `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`
+  );
+  const ex = examples.find((e) => e.mission);
+  assert.equal(`${ex.n}:${ex.d}`, "1350:52");
+  assert.deepEqual(chunksFor(1350, 52), {
+    big: 20,
+    left: 310,
+    small: 5,
+    rest: 50,
+    groups: 25,
+  });
+  assert.equal(missionAnswer(ex.n, ex.d, ex.mission), 26);
+  assert.equal(
+    missionAnswer(ex.n, ex.d, { ...ex.mission, roundUp: false }),
+    25,
+  );
+  const steps = stepsFor(ex.n, ex.d, ex);
+  assert.equal(steps.length, 7);
+  assert.match(steps[0].text, /^Mission! 1350 sweets.*How many bags/);
+  assert.match(steps[6].text, /50 sweets need a bag too, so we need 26 bags!$/);
+});

@@ -4,6 +4,9 @@ import { useQuietRouter } from "@/hooks/use-quiet-router";
 import { useLearning } from "@/hooks/use-learning";
 import { multiplicationQuestions } from "@/lib/multiplication";
 import { GameQuestion } from "@/components/learning/game-question";
+import { GameAutoplay } from "@/components/learning/game-autoplay";
+import { StarCount } from "@/components/learning/star-count";
+import { StarSummary } from "@/components/learning/star-summary";
 import { Robot } from "@/components/learning/robot";
 
 export function MultiplicationGame({ challenge }: { challenge: string }) {
@@ -11,14 +14,19 @@ export function MultiplicationGame({ challenge }: { challenge: string }) {
   const { multiplicationPractice, voiceAvailable, speak } = useLearning();
   const complete = challenge === "complete";
   const question = complete ? 0 : Number(challenge) - 1;
-  const { stars, resetPractice, ...practice } = multiplicationPractice;
+  const { gold, silver, resetPractice, ...practice } = multiplicationPractice;
   return (
     <section className="screen-page game-screen">
       <div className="section-title">
         <h1 className="inner-title">
           Multiplication <span className="serif-word">mission.</span>
         </h1>
-        <span className="score-pill">✦ {stars} stars</span>
+        <div className="game-heading-actions">
+          <span className="score-pill">
+            <StarCount gold={gold} silver={silver} words />
+          </span>
+          <GameAutoplay />
+        </div>
       </div>
       {complete ? (
         <section className="finish-card">
@@ -26,7 +34,7 @@ export function MultiplicationGame({ challenge }: { challenge: string }) {
           <div className="eyebrow">MISSION COMPLETE</div>
           <h2>You did it, Azat Sa!</h2>
           <p>
-            You earned {stars} multiplication stars.
+            <StarSummary gold={gold} silver={silver} topic="multiplication" />
             <br />
             Try 35 × 4 on paper next.
           </p>

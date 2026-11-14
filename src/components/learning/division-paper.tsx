@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import type { LearningState } from "@/hooks/use-learning";
-import { biteSizes, type Focus } from "@/lib/division";
+import { biteSizes, examples, missionAnswer, type Focus } from "@/lib/division";
 import { OrbitNote } from "./orbit-note";
 
 export function DivisionPaper(state: LearningState) {
@@ -52,7 +52,9 @@ export function DivisionPaper(state: LearningState) {
     <section ref={paper} className="paper-panel chunk-paper">
       <div className="flex items-center justify-between">
         <span className="eyebrow">KOLOMSGEWIJS DELEN</span>
-        <span className="paper-badge">Example {example + 1} / 5</span>
+        <span className="paper-badge">
+          Example {example + 1} / {examples.length}
+        </span>
       </div>
       <div className="multiples-strip">
         Handy facts:{" "}
@@ -65,6 +67,14 @@ export function DivisionPaper(state: LearningState) {
           </span>
         ))}
       </div>
+      {ex.mission && (
+        <div
+          data-focus="mission"
+          className={`mission-banner ${focus === "mission" ? "focus" : ""}`}
+        >
+          🎯 <b>Mission:</b> {ex.story} {ex.mission.question}
+        </div>
+      )}
       <div className="paper-work">
         <div
           className="chunk-calculation"
@@ -149,6 +159,23 @@ export function DivisionPaper(state: LearningState) {
               <small className="check-note">same as the starting number</small>
             </div>
           </div>
+          {ex.mission && (
+            <div
+              data-focus="answer"
+              className={`mission-answer ${focus === "answer" ? "focus" : ""} ${shown(6, "answer") ? "reveal" : "invisible"}`}
+            >
+              🎯 Answer: {missionAnswer(ex.n, ex.d, ex.mission)}{" "}
+              {ex.mission.units}
+              {rest > 0 && (
+                <small className="check-note">
+                  {groups} full {ex.mission.units}
+                  {ex.mission.roundUp
+                    ? ` + 1 ${ex.mission.unit} for the last ${rest} ${ex.mission.things}`
+                    : `; ${rest} ${ex.mission.things} left over`}
+                </small>
+              )}
+            </div>
+          )}
         </div>
         <OrbitNote
           anchor={steps[step].anchor}

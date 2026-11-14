@@ -1,3 +1,4 @@
+import type { Question } from "./question";
 export const percentageExamples = [
   { a: 50, b: 80, title: "50% means half", icon: "◐", base: 50, divisor: 2 },
   { a: 10, b: 250, title: "Find 10% first", icon: "🔟", base: 10, divisor: 10 },
@@ -77,14 +78,15 @@ export function percentagePath(example: number, step = 0) {
   return `/learn/percentages/${a}-of-${b}/${step + 1}`;
 }
 
-export const percentageQuestions = [
+export const percentageQuestions: Question[] = [
   {
     n: 50,
     d: 60,
     prompt: "50% means half. What is 50% of 60?",
     options: [15, 25, 30, 50],
     answer: 30,
-    hint: "Half of 60 is 60 : 2 = 30.",
+    hint: "Half means sharing between 2. What is 60 : 2?",
+    explain: "Half of 60 is 60 : 2 = 30.",
   },
   {
     n: 10,
@@ -93,6 +95,7 @@ export const percentageQuestions = [
     options: [10, 18, 80, 170],
     answer: 18,
     hint: "10% is one tenth. Divide 180 by 10.",
+    explain: "10% is one tenth: 180 : 10 = 18.",
   },
   {
     n: 25,
@@ -100,7 +103,8 @@ export const percentageQuestions = [
     prompt: "25% is a quarter. What is 25% of 80?",
     options: [4, 16, 20, 25],
     answer: 20,
-    hint: "Divide 80 into four equal parts: 80 : 4 = 20.",
+    hint: "A quarter means 4 equal parts. What is 80 : 4?",
+    explain: "Divide 80 into four equal parts: 80 : 4 = 20.",
   },
   {
     n: 20,
@@ -108,7 +112,8 @@ export const percentageQuestions = [
     prompt: "10% of 120 is 12. What is 20%?",
     options: [12, 20, 24, 60],
     answer: 24,
-    hint: "20% is twice 10%. Double 12 to get 24.",
+    hint: "20% is two times 10%. What is double 12?",
+    explain: "20% is twice 10%. Double 12 to get 24.",
   },
   {
     n: 15,
@@ -116,7 +121,8 @@ export const percentageQuestions = [
     prompt: "10% is 6 and 5% is 3. What is 15% of 60?",
     options: [3, 9, 15, 45],
     answer: 9,
-    hint: "15% = 10% + 5%. Add 6 + 3 = 9.",
+    hint: "15% = 10% + 5%. Add the two amounts you already know.",
+    explain: "15% = 10% + 5%. Add 6 + 3 = 9.",
   },
   {
     n: 20,
@@ -124,6 +130,8 @@ export const percentageQuestions = [
     prompt: "A €80 bag has a 20% discount. How many euros do you save?",
     options: [8, 16, 20, 64],
     answer: 16,
-    hint: "10% of €80 is €8. Double it: the saving is €16. The new price would be €64.",
+    hint: "First find 10% of €80. Then double it.",
+    explain:
+      "10% of €80 is €8. Double it: the saving is €16. The new price would be €64.",
   },
 ];

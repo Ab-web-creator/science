@@ -31,14 +31,19 @@ export function useLearningController() {
   const multiplicationPractice = usePractice(
     multiplicationIndex,
     multiplicationQuestions,
+    "little-orbit-stars-multiplication",
   );
   const percentageMatch = pathname.match(/^\/play\/percentages\/(\d+)$/);
   const percentagePractice = usePractice(
     percentageMatch ? Number(percentageMatch[1]) - 1 : 0,
     percentageQuestions,
+    "little-orbit-stars-percentages",
   );
   const [playing, setPlaying] = useState(false),
     [voice, setVoice] = useState(false);
+  // Auto-play in the Play games: reads questions and feedback aloud. It follows
+  // the child's last choice in a lesson, so one switch works everywhere.
+  const [gameAutoplay, setGameAutoplay] = useState(false);
   const autoplayStart = useRef<string | null>(null);
   const narration = useNarration();
   const { voiceAvailable, speak, speakCues, stopSpeaking } = narration;
@@ -63,7 +68,7 @@ export function useLearningController() {
   useNavigationSpeechStop(stopNavigationPlayback, stopSpeaking);
   const [completed, setCompleted] = useState<number[]>([]);
   const ex = examples[example],
-    steps = stepsFor(ex.n, ex.d),
+    steps = stepsFor(ex.n, ex.d, ex),
     q = questions[Math.min(question, questions.length - 1)];
   useEffect(() => {
     if (voice && isExample) {
@@ -73,7 +78,7 @@ export function useLearningController() {
       const path = pathname;
       let pause: ReturnType<typeof setTimeout> | undefined;
       speakCues(
-        stepsFor(ex.n, ex.d)[step].cues.map((c) => c.say),
+        stepsFor(ex.n, ex.d, ex)[step].cues.map((c) => c.say),
         (i) => setCueState({ path, i }),
         () => {
           if (!playing) return setCueState({ path, i: null });
@@ -103,8 +108,7 @@ export function useLearningController() {
   }, [
     pathname,
     step,
-    ex.n,
-    ex.d,
+    ex,
     voice,
     isExample,
     speakCues,
@@ -114,6 +118,7 @@ export function useLearningController() {
     router,
   ]);
   function toggleAutoplay() {
+    setGameAutoplay(!playing);
     if (playing) {
       stopNavigationPlayback();
       return;
@@ -177,6 +182,12 @@ export function useLearningController() {
     ...practice,
     stars:
       practice.stars + multiplicationPractice.stars + percentagePractice.stars,
+    gold: practice.gold + multiplicationPractice.gold + percentagePractice.gold,
+    divisionStars: { gold: practice.gold, silver: practice.silver },
+    silver:
+      practice.silver +
+      multiplicationPractice.silver +
+      percentagePractice.silver,
     percentagePractice,
     multiplicationPractice,
     completed,
@@ -184,6 +195,8 @@ export function useLearningController() {
     steps,
     q,
     chunks,
+    gameAutoplay,
+    setGameAutoplay,
     cue,
     leaving,
     revealCue,

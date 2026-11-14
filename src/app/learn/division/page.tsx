@@ -4,13 +4,14 @@ import { lessonPath } from "@/lib/learning-routes";
 import { CardBrowser } from "@/components/learning/card-browser";
 
 export const metadata = { title: "Choose a division adventure | Little Orbit" };
-const icons = ["⭐", "🌙", "🥨", "💎", "🚀"];
+const icons = ["⭐", "🌙", "🥨", "💎", "🚀", "🎯"];
 const titles = [
   "Let’s learn the first steps",
   "Try a bigger chunk",
   "Meet a new divisor",
   "Know when to stop",
   "Find what’s left over",
+  "Mission: a group 8 word problem",
 ];
 
 export default function DivisionOverview() {
@@ -29,7 +30,9 @@ export default function DivisionOverview() {
           number: i + 1,
           equation: `${ex.n} : ${ex.d}`,
           title: titles[i],
-          description: ex.story,
+          description: ex.mission
+            ? `${ex.story} ${ex.mission.question}`
+            : ex.story,
           icon: icons[i],
           recommended: i === 0,
           action: `Start example ${i + 1}`,

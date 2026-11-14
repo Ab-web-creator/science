@@ -36,6 +36,7 @@ export function LessonView() {
           n={state.ex.n}
           d={state.ex.d}
           story={state.ex.story}
+          mission={state.ex.mission}
           autoRead={feedVoice}
         />
       ) : (

@@ -2,7 +2,14 @@
 import { useRef, useState } from "react";
 import { pickCheer } from "@/lib/narration";
 import { useOrbitVoice } from "@/hooks/use-orbit-voice";
-import { biggerBite, biteSizes, fewestBites, takeBite } from "@/lib/division";
+import {
+  biggerBite,
+  biteSizes,
+  fewestBites,
+  takeBite,
+  missionAnswer,
+  type Mission,
+} from "@/lib/division";
 import { Robot } from "./robot";
 import { HapPaper } from "./hap-paper";
 
@@ -13,11 +20,13 @@ export function HapGame({
   n,
   d,
   story,
+  mission,
   autoRead,
 }: {
   n: number;
   d: number;
   story: string;
+  mission?: Mission;
   /** Read each of Orbit's messages aloud as it appears (the Auto-play button). */
   autoRead: boolean;
 }) {
@@ -65,10 +74,15 @@ export function HapGame({
     if (result.left < d) {
       setMood("full");
       const total = next.reduce((a, b) => a + b, 0);
+      // On a mission, finish by answering the story's question.
+      const answer = mission
+        ? ` So we need ${missionAnswer(n, d, mission)} ${mission.units}!`
+        : "";
       setMessage(
-        result.left
+        (result.left
           ? `${cheer()} ${result.left} is smaller than ${d}, so no whole group fits. ${n} : ${d} = ${total} rest ${result.left}.`
-          : `${cheer()} All ${n} stars eaten — nothing left over! ${n} : ${d} = ${total}.`,
+          : `${cheer()} All ${n} stars eaten — nothing left over! ${n} : ${d} = ${total}.`) +
+          answer,
       );
     } else {
       setMood("chomp");

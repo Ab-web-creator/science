@@ -1,16 +1,23 @@
 import type { LearningState } from "@/hooks/use-learning";
+import { GameAutoplay } from "./game-autoplay";
+import { StarCount } from "./star-count";
 export function GameIntro(state: LearningState) {
-  const { stars } = state;
+  const { gold, silver } = state;
   return (
     <>
       {" "}
       <div className="section-title">
         <div>
           <h1 className="inner-title">
-            Your turn, <span className="serif-word">star explorer.</span>
+            Your turn, <span className="serif-word">Azat.</span>
           </h1>
         </div>
-        <span className="score-pill">✦ {stars} stars</span>
+        <div className="game-heading-actions">
+          <span className="score-pill">
+            <StarCount gold={gold} silver={silver} words />
+          </span>
+          <GameAutoplay />
+        </div>
       </div>
     </>
   );

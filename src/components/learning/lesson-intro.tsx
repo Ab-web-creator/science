@@ -1,4 +1,5 @@
 import type { LearningState } from "@/hooks/use-learning";
+import { examples } from "@/lib/division";
 
 export function LessonIntro(
   state: LearningState & {
@@ -20,7 +21,7 @@ export function LessonIntro(
       <div className="section-title lesson-heading">
         <div>
           <div className="eyebrow mb-3">
-            EXAMPLE {example + 1} OF 5 · HAPMETHODE
+            EXAMPLE {example + 1} OF {examples.length} · HAPMETHODE
           </div>
           <h1 className="inner-title">
             Let’s solve{" "}

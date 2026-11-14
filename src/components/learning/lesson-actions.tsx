@@ -1,4 +1,5 @@
 import type { LearningState } from "@/hooks/use-learning";
+import { examples } from "@/lib/division";
 export function LessonActions(state: LearningState) {
   const {
     step,
@@ -29,12 +30,17 @@ export function LessonActions(state: LearningState) {
           if (step < 6) setStep(step + 1);
           else {
             setCompleted([...new Set([...completed, example])]);
-            if (example < 4) chooseExample(example + 1);
+            if (example < examples.length - 1) chooseExample(example + 1);
             else navigate("game");
           }
         }}
       >
-        {step < 6 ? "Next step" : example < 4 ? "Next example" : "Let’s play"} →
+        {step < 6
+          ? "Next step"
+          : example < examples.length - 1
+            ? "Next example"
+            : "Let’s play"}{" "}
+        →
       </button>
     </div>
   );

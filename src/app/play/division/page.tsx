@@ -21,21 +21,23 @@ export default function PracticeOverview() {
         Let’s play, <span className="serif-word">Azat Sa.</span>
       </h1>
       <p className="page-intro">
-        Start with challenge 1. You can use paper, ask for a hint, and try
-        again.
+        Challenges 1–4 go step by step, 5–7 are whole problems, and 8–10 are
+        real-life missions. You can use paper, ask for a hint, and try again.
       </p>
       <CardBrowser
+        multiple
         label="Challenge cards"
         items={questions.map((q, i) => ({
           href: `/play/division/${i + 1}`,
           number: i + 1,
-          equation: `${q.n} : ${q.d}`,
-          title: titles[i],
-          description:
-            i < 4
+          equation: q.title ?? `${q.n} : ${q.d}`,
+          title: titles[i] ?? q.prompt,
+          description: q.story
+            ? "A real-life problem. Think about what the rest means!"
+            : i < 4
               ? "Follow the chunks, one step at a time."
               : "Try it yourself. You can always ask for a hint.",
-          icon: i < 4 ? "🪐" : "🚀",
+          icon: q.story ? "🌍" : i < 4 ? "🪐" : "🚀",
           recommended: i === 0,
           kind: "Challenge",
           action: `Play challenge ${i + 1}`,

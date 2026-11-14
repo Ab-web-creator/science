@@ -21,6 +21,7 @@ export default function MultiplicationPractice() {
         Start with challenge 1. Hints are here if you need them.
       </p>
       <CardBrowser
+        multiple
         label="Multiplication challenges"
         items={multiplicationQuestions.map((q, i) => ({
           href: `/play/multiplication/${i + 1}`,

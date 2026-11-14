@@ -21,6 +21,7 @@ export default function PercentagePractice() {
         Six challenges. Start with the first or revisit a skill.
       </p>
       <CardBrowser
+        multiple
         label="Percentage challenges"
         items={percentageQuestions.map((q, i) => ({
           href: `/play/percentages/${i + 1}`,

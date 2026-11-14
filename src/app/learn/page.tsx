@@ -9,7 +9,7 @@ export default function Learn() {
       <p className="page-intro">
         Choose a skill, Azat Sa. We’ll figure it out together.
       </p>
-      <SkillChoices />
+      <SkillChoices placeholders />
     </section>
   );
 }

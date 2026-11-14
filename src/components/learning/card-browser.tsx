@@ -29,14 +29,17 @@ export function CardBrowser({
   multiple?: boolean;
 }) {
   const [current, setCurrent] = useState(0);
+  // "Show all": every card at once (rows wrap) instead of a page at a time.
+  const [all, setAll] = useState(false);
   const available = useSyncExternalStore(
     subscribeToSize,
     cardsForSize,
     () => 1,
   );
   const count = multiple ? available : 1;
-  const start = Math.floor(current / count) * count;
-  const end = Math.min(start + count, items.length);
+  const start = all ? 0 : Math.floor(current / count) * count;
+  const end = all ? items.length : Math.min(start + count, items.length);
+  const canShowAll = multiple && items.length > count;
   return (
     <section
       className={`card-browser ${multiple ? "multi-card-browser" : ""}`}
@@ -52,25 +55,39 @@ export function CardBrowser({
           </div>
         ))}
       </div>
-      <nav className="card-pager" aria-label={`${label} pages`}>
+      {canShowAll && (
         <button
-          className="button secondary"
-          disabled={start === 0}
-          onClick={() => setCurrent(Math.max(0, start - count))}
+          className="text-button show-all-cards"
+          aria-expanded={all}
+          onClick={() => {
+            setAll(!all);
+            setCurrent(0);
+          }}
         >
-          ← Previous
+          {all ? "Show fewer" : "Show all"}
         </button>
-        <span role="status" aria-live="polite">
-          {count === 1 ? start + 1 : `${start + 1}–${end}`} of {items.length}
-        </span>
-        <button
-          className="button secondary"
-          disabled={end === items.length}
-          onClick={() => setCurrent(end)}
-        >
-          Next →
-        </button>
-      </nav>
+      )}
+      {!all && (
+        <nav className="card-pager" aria-label={`${label} pages`}>
+          <button
+            className="button secondary"
+            disabled={start === 0}
+            onClick={() => setCurrent(Math.max(0, start - count))}
+          >
+            ← Previous
+          </button>
+          <span role="status" aria-live="polite">
+            {count === 1 ? start + 1 : `${start + 1}–${end}`} of {items.length}
+          </span>
+          <button
+            className="button secondary"
+            disabled={end === items.length}
+            onClick={() => setCurrent(end)}
+          >
+            Next →
+          </button>
+        </nav>
+      )}
     </section>
   );
 }

@@ -53,6 +53,7 @@ export function spokenMath(text: string) {
       .replace(/\s*−\s*/g, ", minus ")
       .replace(/(\d)\s*-(?=\d)/g, "$1, minus ")
       .replace(/\s*\+\s*/g, ", plus ")
+      .replace(/\s*=\s*\?/g, ", equals what?")
       .replace(/\s*=\s*/g, ", equals ")
       .replace(/%/g, " percent")
       .replace(/→/g, ". Then ")
