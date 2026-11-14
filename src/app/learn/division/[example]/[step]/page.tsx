@@ -37,11 +37,7 @@ export default function LessonPage({ params }: { params: Promise<Params> }) {
   );
 }
 
-async function RouteContent({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+async function RouteContent({ params }: { params: Promise<Params> }) {
   const { example, step } = await params;
   if (!examples.some((ex) => String(ex.n) === example) || !/^[1-7]$/.test(step))
     notFound();

@@ -38,12 +38,33 @@ export function chunksFor(n: number, d: number) {
   return { big, left, small, rest: left - small * d, groups };
 }
 
+/** Bite sizes (groups per bite) offered in the Feed Orbit game and the handy-facts strip. */
+export const biteSizes = [1, 2, 5, 10, 20];
+
+/** Try to take `groups` groups of `d` out of `left`. Too-big bites leave `left` unchanged. */
+export function takeBite(left: number, d: number, groups: number) {
+  const size = groups * d;
+  return size <= left
+    ? { fits: true, left: left - size }
+    : { fits: false, left };
+}
+
+/** Fewest bites from `sizes` that add up to exactly `groups` groups. */
+export function fewestBites(groups: number, sizes = biteSizes) {
+  const best = [0];
+  for (let g = 1; g <= groups; g++)
+    best[g] = Math.min(
+      ...sizes.filter((s) => s <= g).map((s) => best[g - s] + 1),
+    );
+  return best[groups];
+}
+
 export function stepsFor(n: number, d: number) {
   const { big, left, small, rest, groups } = chunksFor(n, d);
   return [
     {
       title: "Start with the whole number",
-      text: `We’re finding ${n} : ${d}. Keep ${n} whole. Take out groups of ${d} in chunks, called happen in Dutch. Count the groups.`,
+      text: `We’re finding ${n} : ${d}. Keep ${n} whole. Take out groups of ${d} in chunks, called “happen” (bites) in Dutch. Count the groups.`,
     },
     {
       title: "Choose a handy chunk — een hap",

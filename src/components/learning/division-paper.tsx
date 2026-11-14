@@ -1,4 +1,5 @@
 import type { LearningState } from "@/hooks/use-learning";
+import { biteSizes } from "@/lib/division";
 
 export function DivisionPaper(state: LearningState) {
   const { example, ex, step, chunks } = state;
@@ -10,7 +11,8 @@ export function DivisionPaper(state: LearningState) {
         <span className="paper-badge">Example {example + 1} / 5</span>
       </div>
       <div className="multiples-strip">
-        Handy facts: 1 × {ex.d} = {ex.d} · 10 × {ex.d} = {10 * ex.d}
+        Handy facts:{" "}
+        {biteSizes.map((g) => `${g} × ${ex.d} = ${g * ex.d}`).join(" · ")}
       </div>
       <div
         className="chunk-calculation"

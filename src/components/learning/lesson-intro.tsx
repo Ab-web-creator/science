@@ -1,7 +1,10 @@
 import type { LearningState } from "@/hooks/use-learning";
 
-export function LessonIntro(state: LearningState) {
+export function LessonIntro(
+  state: LearningState & { feeding: boolean; onFeed: () => void },
+) {
   const { playing, voiceAvailable, toggleAutoplay, ex, example } = state;
+  const { feeding, onFeed } = state;
   return (
     <>
       <div className="section-title lesson-heading">
@@ -16,14 +19,22 @@ export function LessonIntro(state: LearningState) {
             </span>
           </h1>
         </div>
-        <button
-          className={`button secondary ${playing ? "voice-on" : ""}`}
-          disabled={!voiceAvailable}
-          onClick={toggleAutoplay}
-          aria-pressed={playing}
-        >
-          {playing ? "Ⅱ Pause" : "▶ Auto-play"}
-        </button>
+        <div className="lesson-heading-actions">
+          {!feeding && (
+            <button className="button primary feed-button" onClick={onFeed}>
+              😋 Feed Orbit
+            </button>
+          )}
+          <button
+            hidden={feeding}
+            className={`button secondary ${playing ? "voice-on" : ""}`}
+            disabled={!voiceAvailable}
+            onClick={toggleAutoplay}
+            aria-pressed={playing}
+          >
+            {playing ? "Ⅱ Pause" : "▶ Auto-play"}
+          </button>
+        </div>
       </div>
       {!voiceAvailable && (
         <p className="muted mb-4">

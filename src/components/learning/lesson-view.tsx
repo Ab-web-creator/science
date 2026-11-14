@@ -6,31 +6,49 @@ import { DivisionPaper } from "./division-paper";
 import { LessonStep } from "./lesson-step";
 import { LessonActions } from "./lesson-actions";
 import { HelpDialog } from "./help-dialog";
+import { HapGame } from "./hap-game";
 
 export function LessonView() {
   const state = useLearning();
   const [view, setView] = useState("steps");
+  const [feeding, setFeeding] = useState(false);
+  function startFeeding() {
+    state.setPlaying(false);
+    state.setVoice(false);
+    setFeeding(true);
+  }
   return (
     <section className="screen-page lesson-screen">
-      <LessonIntro {...state} />
-      <div className="lesson-switch" role="group" aria-label="Lesson view">
-        <button
-          aria-pressed={view === "steps"}
-          onClick={() => setView("steps")}
-        >
-          ① Explain it
-        </button>
-        <button
-          aria-pressed={view === "paper"}
-          onClick={() => setView("paper")}
-        >
-          ✎ Show the paper
-        </button>
-      </div>
-      <div className="lesson-layout" data-view={view}>
-        <DivisionPaper {...state} />
-        <LessonStep {...state} />
-      </div>
+      <LessonIntro {...state} feeding={feeding} onFeed={startFeeding} />
+      {feeding ? (
+        <HapGame
+          key={state.example}
+          n={state.ex.n}
+          d={state.ex.d}
+          story={state.ex.story}
+        />
+      ) : (
+        <>
+          <div className="lesson-switch" role="group" aria-label="Lesson view">
+            <button
+              aria-pressed={view === "steps"}
+              onClick={() => setView("steps")}
+            >
+              ① Explain it
+            </button>
+            <button
+              aria-pressed={view === "paper"}
+              onClick={() => setView("paper")}
+            >
+              ✎ Show the paper
+            </button>
+          </div>
+          <div className="lesson-layout" data-view={view}>
+            <DivisionPaper {...state} />
+            <LessonStep {...state} onFeed={startFeeding} />
+          </div>
+        </>
+      )}
       <div className="lesson-dock">
         <HelpDialog label="☀ Tips & help" title="A little help from Orbit">
           <p>
@@ -38,15 +56,24 @@ export function LessonView() {
             smaller than the divisor. Add your group counts.
           </p>
           <p>
-            Smaller chunks work too! Try 10 groups at a time, then check by
-            multiplying.
+            Smaller chunks work too! Tap 😋 Feed Orbit to pick your own bites.
+            Bigger bites that still fit mean fewer bites.
           </p>
           <p>
             For your grown-up: practise one together, then let Azat explain the
             next. Match his teacher’s notation.
           </p>
         </HelpDialog>
-        <LessonActions {...state} />
+        {feeding ? (
+          <button
+            className="button secondary"
+            onClick={() => setFeeding(false)}
+          >
+            ← Back to the steps
+          </button>
+        ) : (
+          <LessonActions {...state} />
+        )}
       </div>
     </section>
   );

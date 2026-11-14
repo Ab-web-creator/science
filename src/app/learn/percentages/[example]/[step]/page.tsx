@@ -22,7 +22,11 @@ export async function generateMetadata({
     title: `${example.replace("-of-", "% of ")} · Step ${step} | Little Orbit`,
   };
 }
-export default function PercentagePage({ params }: { params: Promise<Params> }) {
+export default function PercentagePage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
   return (
     <Suspense fallback={<RouteLoading kind="lesson" />}>
       <RouteContent params={params} />
@@ -30,11 +34,7 @@ export default function PercentagePage({ params }: { params: Promise<Params> }) 
   );
 }
 
-async function RouteContent({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+async function RouteContent({ params }: { params: Promise<Params> }) {
   const { example, step } = await params;
   const index = percentageExamples.findIndex(
     (ex) => `${ex.a}-of-${ex.b}` === example,

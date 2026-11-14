@@ -45,3 +45,23 @@ test("guided game follows whole-number chunks", () => {
   assert.equal(questions[5].answer, 625 / 25);
   assert.equal(questions[6].answer, 487 % 16);
 });
+
+test("bites that are too big leave the number unchanged", async () => {
+  const { takeBite } = await import(
+    `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`
+  );
+  assert.deepEqual(takeBite(156, 12, 20), { fits: false, left: 156 });
+  assert.deepEqual(takeBite(156, 12, 10), { fits: true, left: 36 });
+  assert.deepEqual(takeBite(36, 12, 2), { fits: true, left: 12 });
+});
+
+test("fewest bites uses the bite ladder", async () => {
+  const { fewestBites, biteSizes } = await import(
+    `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`
+  );
+  assert.deepEqual(biteSizes, [1, 2, 5, 10, 20]);
+  assert.equal(fewestBites(13), 3); // 156 : 12 → 10 + 2 + 1
+  assert.equal(fewestBites(30), 2); // 728 : 24 → 20 + 10
+  assert.equal(fewestBites(24), 3); // 384 : 16 → 20 + 2 + 2
+  assert.equal(fewestBites(0), 0);
+});

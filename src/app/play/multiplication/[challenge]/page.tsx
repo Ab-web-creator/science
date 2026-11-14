@@ -20,7 +20,11 @@ export async function generateMetadata({
     title: `Multiplication · ${challenge === "complete" ? "Mission complete" : `Challenge ${challenge}`} | Little Orbit`,
   };
 }
-export default function MultiplicationChallenge({ params }: { params: Promise<Params> }) {
+export default function MultiplicationChallenge({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
   return (
     <Suspense fallback={<RouteLoading kind="game" />}>
       <RouteContent params={params} />
@@ -28,11 +32,7 @@ export default function MultiplicationChallenge({ params }: { params: Promise<Pa
   );
 }
 
-async function RouteContent({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+async function RouteContent({ params }: { params: Promise<Params> }) {
   const { challenge } = await params;
   if (
     challenge !== "complete" &&

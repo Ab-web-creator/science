@@ -1,6 +1,6 @@
 import { NarrationControls } from "./narration-controls";
 import type { LearningState } from "@/hooks/use-learning";
-export function LessonStep(state: LearningState) {
+export function LessonStep(state: LearningState & { onFeed: () => void }) {
   const { step, steps, setStep, setPlaying, example } = state;
   return (
     <section className="step-panel">
@@ -26,6 +26,14 @@ export function LessonStep(state: LearningState) {
       <div key={`${example}-${step}`} className="step-content reveal">
         <h2>{steps[step].title}</h2>
         <p>{steps[step].text}</p>
+        {(step === 1 || step === 6) && (
+          <button className="feed-invite" onClick={state.onFeed}>
+            😋{" "}
+            {step === 1
+              ? "Your turn: choose Orbit’s bites yourself!"
+              : "Can you feed Orbit in fewer bites?"}
+          </button>
+        )}
       </div>
       <NarrationControls text={steps[step].text} />
     </section>

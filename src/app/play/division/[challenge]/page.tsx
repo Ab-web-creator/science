@@ -32,11 +32,7 @@ export default function ChallengePage({ params }: { params: Promise<Params> }) {
   );
 }
 
-async function RouteContent({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+async function RouteContent({ params }: { params: Promise<Params> }) {
   const { challenge } = await params;
   if (
     challenge !== "complete" &&
