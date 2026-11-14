@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLearning, type LearningState } from "@/hooks/use-learning";
 import { useOrbitVoice } from "@/hooks/use-orbit-voice";
 import { pickCheer } from "@/lib/narration";
+import { starOutcome } from "@/lib/star-store";
 import { HelpDialog } from "./help-dialog";
 import { questions } from "@/lib/division";
 type QuestionProps = Pick<
@@ -15,7 +16,7 @@ type QuestionProps = Pick<
   | "selected"
   | "answerQuestion"
   | "nextQuestion"
-  | "firstTry"
+  | "saved"
 > & { totalQuestions?: number; operator?: string; equation?: string };
 export function GameQuestion(state: QuestionProps) {
   const {
@@ -28,7 +29,7 @@ export function GameQuestion(state: QuestionProps) {
     selected,
     answerQuestion,
     nextQuestion,
-    firstTry,
+    saved,
   } = state;
   const { gameAutoplay } = useLearning();
   // What Orbit says. A new question is read as it appears; each tap gets its
@@ -41,6 +42,8 @@ export function GameQuestion(state: QuestionProps) {
     text: "",
     tap: 0,
     cheer: "",
+    // What the right answer meant for the stars (set at the moment of answering).
+    outcome: { icon: "✦", text: "" },
   });
   const current = said.question === question ? said : { text: asked, tap: 0 };
   useOrbitVoice(current.text, current.tap, gameAutoplay);
@@ -48,14 +51,16 @@ export function GameQuestion(state: QuestionProps) {
     const right = option === q.answer;
     const firstGo = selected === null; // no wrong pick yet on this challenge
     const cheer = right ? pickCheer(said.cheer) : said.cheer;
+    const outcome = right ? starOutcome(firstGo, saved) : said.outcome;
     setSaid({
       question,
       tap: said.tap + 1,
       cheer,
+      outcome,
       // After a wrong pick Orbit gives the tip straight away, so the next try
       // is thinking, not guessing.
       text: right
-        ? `${cheer}${firstGo ? "" : " You kept trying!"} ${q.explain}`
+        ? `${cheer} ${outcome.text} ${q.explain}`
         : `No, no! Not ${option}. Here is a tip: ${q.hint}`,
     });
     answerQuestion(option);
@@ -103,15 +108,9 @@ export function GameQuestion(state: QuestionProps) {
       <div className="feedback" role="status" aria-live="polite">
         {selected !== null &&
           (solved ? (
-            firstTry ? (
-              <p className="success">
-                ✦ {said.cheer || "Hurray!"} Right the first time: a gold star!
-              </p>
-            ) : (
-              <p className="success">
-                ✧ {said.cheer || "Hurray!"} You kept trying: a silver star!
-              </p>
-            )
+            <p className="success">
+              {said.outcome.icon} {said.cheer || "Hurray!"} {said.outcome.text}
+            </p>
           ) : (
             <p className="retry">
               No, no! Not {selected}. <b>Tip:</b> {q.hint}

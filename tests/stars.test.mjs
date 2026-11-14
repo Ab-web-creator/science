@@ -10,7 +10,7 @@ const source = await readFile(
 const { outputText } = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext },
 });
-const { betterStar, countStars } = await import(
+const { betterStar, countStars, starOutcome } = await import(
   `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`
 );
 
@@ -26,4 +26,13 @@ test("stars are counted per colour", () => {
     silver: 1,
   });
   assert.deepEqual(countStars({}), { gold: 0, silver: 0 });
+});
+
+test("the star message is honest when a challenge is played again", () => {
+  assert.match(starOutcome(true, undefined).text, /gold star/);
+  assert.match(starOutcome(false, undefined).text, /silver star/);
+  assert.match(starOutcome(true, "silver").text, /turned gold/);
+  assert.match(starOutcome(true, "gold").text, /already have gold/);
+  assert.match(starOutcome(false, "gold").text, /already have gold/);
+  assert.match(starOutcome(false, "silver").text, /still silver/);
 });

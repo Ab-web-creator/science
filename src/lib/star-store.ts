@@ -59,3 +59,26 @@ export function countStars(stars: Stars) {
     silver: values.filter((s) => s === "silver").length,
   };
 }
+
+/** What a right answer means for the stars, honestly, including replays of a
+ *  challenge that already has a star (each challenge keeps its best star). */
+export function starOutcome(firstTry: boolean, had: Star | undefined) {
+  if (firstTry) {
+    if (had === "gold")
+      return { icon: "✦", text: "Right again! You already have gold here." };
+    if (had === "silver")
+      return { icon: "✦", text: "Your silver star turned gold!" };
+    return { icon: "✦", text: "Right the first time: a gold star!" };
+  }
+  if (had === "gold")
+    return {
+      icon: "✦",
+      text: "You kept trying! You already have gold for this one.",
+    };
+  if (had === "silver")
+    return {
+      icon: "✧",
+      text: "You kept trying! It is still silver. Get it right the first time to make it gold!",
+    };
+  return { icon: "✧", text: "You kept trying: a silver star!" };
+}

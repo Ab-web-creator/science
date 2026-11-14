@@ -51,6 +51,8 @@ export function usePractice(
   return {
     selected: attempt?.selected ?? null,
     solved: attempt?.solved ?? false,
+    /** The best star saved for this challenge so far (before this answer). */
+    saved: best[question] as "gold" | "silver" | undefined,
     /** True when this challenge was answered right on the first try. */
     firstTry: attempt?.firstTry ?? false,
     hint: hints[question] ?? false,
