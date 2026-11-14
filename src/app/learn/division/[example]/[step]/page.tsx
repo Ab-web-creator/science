@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { RouteLoading } from "@/components/learning/route-loading";
 import { notFound } from "next/navigation";
 import { examples } from "@/lib/division";
 import { LessonView } from "@/components/learning/lesson-view";
@@ -27,7 +29,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function LessonPage({
+export default function LessonPage({ params }: { params: Promise<Params> }) {
+  return (
+    <Suspense fallback={<RouteLoading kind="lesson" />}>
+      <RouteContent params={params} />
+    </Suspense>
+  );
+}
+
+async function RouteContent({
   params,
 }: {
   params: Promise<Params>;

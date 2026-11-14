@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { RouteLoading } from "@/components/learning/route-loading";
 import { notFound } from "next/navigation";
 import { percentageQuestions } from "@/lib/percentages";
 import { PercentageGame } from "@/components/percentages/game";
@@ -18,7 +20,15 @@ export async function generateMetadata({
     title: `Percentage · ${challenge === "complete" ? "Mission complete" : `Challenge ${challenge}`} | Little Orbit`,
   };
 }
-export default async function PercentageChallenge({
+export default function PercentageChallenge({ params }: { params: Promise<Params> }) {
+  return (
+    <Suspense fallback={<RouteLoading kind="game" />}>
+      <RouteContent params={params} />
+    </Suspense>
+  );
+}
+
+async function RouteContent({
   params,
 }: {
   params: Promise<Params>;

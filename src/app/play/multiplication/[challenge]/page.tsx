@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { RouteLoading } from "@/components/learning/route-loading";
 import { notFound } from "next/navigation";
 import { multiplicationQuestions } from "@/lib/multiplication";
 import { MultiplicationGame } from "@/components/multiplication/game";
@@ -18,7 +20,15 @@ export async function generateMetadata({
     title: `Multiplication · ${challenge === "complete" ? "Mission complete" : `Challenge ${challenge}`} | Little Orbit`,
   };
 }
-export default async function MultiplicationChallenge({
+export default function MultiplicationChallenge({ params }: { params: Promise<Params> }) {
+  return (
+    <Suspense fallback={<RouteLoading kind="game" />}>
+      <RouteContent params={params} />
+    </Suspense>
+  );
+}
+
+async function RouteContent({
   params,
 }: {
   params: Promise<Params>;

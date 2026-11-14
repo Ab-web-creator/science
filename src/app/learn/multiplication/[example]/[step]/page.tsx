@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { RouteLoading } from "@/components/learning/route-loading";
 import { notFound } from "next/navigation";
 import { multiplicationExamples } from "@/lib/multiplication";
 import { MultiplicationLesson } from "@/components/multiplication/lesson";
@@ -20,7 +22,15 @@ export async function generateMetadata({
     title: `${example.replace("-", " × ")} · Step ${step} | Little Orbit`,
   };
 }
-export default async function MultiplicationPage({
+export default function MultiplicationPage({ params }: { params: Promise<Params> }) {
+  return (
+    <Suspense fallback={<RouteLoading kind="lesson" />}>
+      <RouteContent params={params} />
+    </Suspense>
+  );
+}
+
+async function RouteContent({
   params,
 }: {
   params: Promise<Params>;

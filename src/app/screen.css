@@ -992,3 +992,10 @@
   .navbar-back-label { display: none; }
 }
 .navbar-back-link { line-height: 1; }
+.route-loading-heading { width: min(460px, 80%); height: 48px; border-radius: 12px; background: #e7eddf; }
+.route-loading-panels { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; min-height: 280px; }
+.route-loading-panels > div { border: 2px solid #dfe6d5; border-radius: 18px; background: #f4f6ec; }
+.route-loading-panels.single { grid-template-columns: 1fr; width: min(100%, 800px); align-self: center; }
+.route-loading-panels.single > div:last-child { display: none; }
+.route-loading-actions { width: 150px; height: 52px; background: #e7eddf; border-radius: 12px; align-self: flex-end; }
+@media(max-width:760px) { .route-loading-panels { grid-template-columns: 1fr; }.route-loading-panels > div:last-child { display: none; } }

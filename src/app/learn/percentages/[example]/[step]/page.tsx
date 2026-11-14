@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { RouteLoading } from "@/components/learning/route-loading";
 import { notFound } from "next/navigation";
 import { percentageExamples } from "@/lib/percentages";
 import { PercentageLesson } from "@/components/percentages/lesson";
@@ -20,7 +22,15 @@ export async function generateMetadata({
     title: `${example.replace("-of-", "% of ")} · Step ${step} | Little Orbit`,
   };
 }
-export default async function PercentagePage({
+export default function PercentagePage({ params }: { params: Promise<Params> }) {
+  return (
+    <Suspense fallback={<RouteLoading kind="lesson" />}>
+      <RouteContent params={params} />
+    </Suspense>
+  );
+}
+
+async function RouteContent({
   params,
 }: {
   params: Promise<Params>;
