@@ -1,10 +1,20 @@
 import type { LearningState } from "@/hooks/use-learning";
 
 export function LessonIntro(
-  state: LearningState & { feeding: boolean; onFeed: () => void },
+  state: LearningState & {
+    feeding: boolean;
+    onFeed: () => void;
+    onBack: () => void;
+    feedVoice: boolean;
+    onToggleFeedVoice: () => void;
+  },
 ) {
-  const { playing, voiceAvailable, toggleAutoplay, ex, example } = state;
-  const { feeding, onFeed } = state;
+  const { voiceAvailable, ex, example, feeding, onFeed } = state;
+  // Same button, same place: in Feed Orbit it reads Orbit's messages aloud.
+  const playing = feeding ? state.feedVoice : state.playing;
+  const toggleAutoplay = feeding
+    ? state.onToggleFeedVoice
+    : state.toggleAutoplay;
   return (
     <>
       <div className="section-title lesson-heading">
@@ -20,13 +30,17 @@ export function LessonIntro(
           </h1>
         </div>
         <div className="lesson-heading-actions">
-          {!feeding && (
+          {/* Same spot for going into Feed Orbit and back out again. */}
+          {feeding ? (
+            <button className="button secondary" onClick={state.onBack}>
+              ← Back to the steps
+            </button>
+          ) : (
             <button className="button primary feed-button" onClick={onFeed}>
               😋 Feed Orbit
             </button>
           )}
           <button
-            hidden={feeding}
             className={`button secondary ${playing ? "voice-on" : ""}`}
             disabled={!voiceAvailable}
             onClick={toggleAutoplay}

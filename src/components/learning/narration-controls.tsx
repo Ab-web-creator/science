@@ -1,13 +1,15 @@
 "use client";
 import { useLearning } from "@/hooks/use-learning";
-import { VoiceSettings } from "./voice-settings";
 
 export function NarrationControls({
   text,
   compact = false,
+  onRead,
 }: {
   text: string;
   compact?: boolean;
+  /** Custom reader, e.g. one that highlights the paper while it talks. */
+  onRead?: () => void;
 }) {
   const { voiceAvailable, speak } = useLearning();
   return (
@@ -15,11 +17,10 @@ export function NarrationControls({
       <button
         className="text-button"
         disabled={!voiceAvailable}
-        onClick={() => speak(text)}
+        onClick={() => (onRead ? onRead() : speak(text))}
       >
         {compact ? "♫ Listen" : "♫ Read this step to me"}
       </button>
-      <VoiceSettings />
     </div>
   );
 }

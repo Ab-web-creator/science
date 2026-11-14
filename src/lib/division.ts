@@ -49,6 +49,14 @@ export function takeBite(left: number, d: number, groups: number) {
     : { fits: false, left };
 }
 
+/** A bite at least twice as big as the one just taken that still fits in
+ *  `left`, for Orbit's gentle "try a big bite" nudge; null if none. */
+export function biggerBite(left: number, d: number, taken: number) {
+  const fits = biteSizes.filter((g) => g * d <= left);
+  const biggest = fits[fits.length - 1];
+  return biggest !== undefined && biggest >= taken * 2 ? biggest : null;
+}
+
 /** Fewest bites from `sizes` that add up to exactly `groups` groups. */
 export function fewestBites(groups: number, sizes = biteSizes) {
   const best = [0];
@@ -59,41 +67,140 @@ export function fewestBites(groups: number, sizes = biteSizes) {
   return best[groups];
 }
 
-export function stepsFor(n: number, d: number) {
+/** Parts of the paper that a spoken sentence can point at. */
+export type Focus =
+  | "heading"
+  | "start"
+  | `fact-${number}`
+  | "sub1"
+  | "left"
+  | "sub2"
+  | "rest"
+  | "restnote"
+  | "groups"
+  | "total"
+  | "checkhead"
+  | "check"
+  | "checksame";
+
+/** One spoken sentence and the part of the paper to highlight while it plays. */
+export type Cue = { say: string; focus: Focus };
+
+/** The paper element each step adds; Orbit's note sits beside it. */
+export type Step = { title: string; anchor: Focus; cues: Cue[]; text: string };
+
+function step(title: string, anchor: Focus, cues: Cue[]): Step {
+  return { title, anchor, cues, text: cues.map((c) => c.say).join(" ") };
+}
+
+export function stepsFor(n: number, d: number): Step[] {
   const { big, left, small, rest, groups } = chunksFor(n, d);
+  const answer = `${n} : ${d} = ${groups}${rest ? ` rest ${rest}` : ""}`;
+  const fact: Focus = biteSizes.includes(big) ? `fact-${big}` : "fact-10";
   return [
-    {
-      title: "Start with the whole number",
-      text: `We’re finding ${n} : ${d}. Keep ${n} whole. Take out groups of ${d} in chunks, called “happen” (bites) in Dutch. Count the groups.`,
-    },
-    {
-      title: "Choose a handy chunk — een hap",
-      text: `Take ${big} groups: ${big} × ${d} = ${big * d}. This chunk fits inside ${n}. Write ${big} groups beside it.`,
-    },
-    {
-      title: "Subtract the chunk — aftrekken",
-      text: `Subtract the whole chunk: ${n} − ${big * d} = ${left}. We have taken out ${big} groups of ${d}, with ${left} left to share.`,
-    },
-    {
-      title: small ? "Choose the next chunk" : "Can another group fit?",
-      text: small
-        ? `${left} is left. ${small} more groups fit, because ${small} × ${d} = ${small * d}. ${small + 1} groups would need ${(small + 1) * d}, which is too much.`
-        : `${left} is smaller than ${d}. No more whole groups fit. We stop here; ${left} is the remainder, called rest.`,
-    },
-    {
-      title: small ? "Subtract again" : "Keep the remainder — rest",
-      text: small
-        ? `${left} − ${small * d} = ${rest}. ${rest === 0 ? "Nothing left over!" : `${rest} is smaller than ${d}, so no more whole groups fit. This is the rest.`}`
-        : `Keep ${rest} as the rest. Do not take away another ${d}, because there are not enough left.`,
-    },
-    {
-      title: "Add your groups — optellen",
-      text: `${big} ${small ? `+ ${small} = ${groups}` : `groups in total`}. Add the group counts at the side, not the chunks you subtracted. ${n} : ${d} = ${groups}${rest ? ` rest ${rest}` : ""}.`,
-    },
-    {
-      title: "Check — controleren",
-      text: `${groups} × ${d}${rest ? ` + ${rest}` : ""} = ${n}. Multiply the answer by ${d}, then add any rest. ${rest ? `The rest, ${rest}, must be smaller than ${d}.` : "We get the starting number back!"}`,
-    },
+    step("Start with the whole number", "start", [
+      { say: `We’re finding ${n} : ${d}.`, focus: "heading" },
+      { say: `Keep ${n} whole.`, focus: "start" },
+      {
+        say: `We take out groups of ${d} in chunks, called “happen” or bites, in Dutch.`,
+        focus: "start",
+      },
+    ]),
+    step("Choose a handy chunk — een hap", "sub1", [
+      { say: `Take ${big} groups of ${d}.`, focus: fact },
+      { say: `${big} × ${d} = ${big * d}.`, focus: "sub1" },
+      // Split at the comma so "10 groups" is written in exactly on "so write…".
+      { say: `${big * d} fits inside ${n},`, focus: "sub1" },
+      { say: `so write ${big} groups beside it.`, focus: "groups" },
+    ]),
+    step("Subtract the chunk — aftrekken", "left", [
+      { say: `${n} − ${big * d} = ${left}.`, focus: "left" },
+      { say: `${left} is left to share.`, focus: "left" },
+    ]),
+    small
+      ? step("Choose the next chunk", "sub2", [
+          { say: `${left} is left.`, focus: "left" },
+          {
+            say: `${small} × ${d} = ${small * d}, so ${small} more groups fit.`,
+            focus: "sub2",
+          },
+          {
+            say: `${small + 1} groups would need ${(small + 1) * d}, which is too much.`,
+            focus: "sub2",
+          },
+        ])
+      : step("Can another group fit?", "restnote", [
+          { say: `${left} is smaller than ${d}.`, focus: "left" },
+          {
+            say: `No more whole groups fit. We stop here; ${left} is the remainder, called rest.`,
+            focus: "restnote",
+          },
+        ]),
+    small
+      ? step("Subtract again", "rest", [
+          { say: `${left} − ${small * d} = ${rest}.`, focus: "rest" },
+          {
+            say: rest
+              ? `${rest} is smaller than ${d}, so no more whole groups fit. This is the rest.`
+              : "Nothing left over!",
+            focus: "rest",
+          },
+        ])
+      : step("Keep the remainder — rest", "restnote", [
+          { say: `Keep ${rest} as the rest.`, focus: "restnote" },
+          {
+            say: `Do not take away another ${d}, because there are not enough left.`,
+            focus: "restnote",
+          },
+        ]),
+    step("Add your groups — optellen", "total", [
+      {
+        say: "Add the group counts at the side, not the chunks you subtracted.",
+        focus: "groups",
+      },
+      {
+        say: small
+          ? `${big} + ${small} = ${groups} groups.`
+          : `${big} groups in total.`,
+        focus: "total",
+      },
+      { say: `${answer}.`, focus: "heading" },
+    ]),
+    // Check by working backwards: multiplying undoes dividing. Multiply the
+    // answer back (and add the rest); getting the starting number again proves
+    // the division was right.
+    step("Check: is our answer right? — controleren", "check", [
+      { say: "Now let’s check if our answer is right.", focus: "heading" },
+      {
+        say: "Multiplying undoes dividing, so we check by multiplying back.",
+        focus: "checkhead",
+      },
+      {
+        say: `Our answer is ${groups} groups of ${d}, and ${groups} × ${d} = ${groups * d}.`,
+        focus: "check",
+      },
+      ...(rest
+        ? [
+            {
+              say: `Then add the rest: ${groups * d} + ${rest} = ${n}.`,
+              focus: "check" as Focus,
+            },
+          ]
+        : []),
+      {
+        say: `Compare with the starting number: ${n} is the same as ${n}.`,
+        focus: "checksame",
+      },
+      ...(rest
+        ? [
+            {
+              say: `And the rest, ${rest}, is smaller than ${d}, as it must be.`,
+              focus: (small ? "rest" : "restnote") as Focus,
+            },
+          ]
+        : []),
+      { say: `They match, so ${answer} is correct!`, focus: "checksame" },
+    ]),
   ];
 }
 export const questions = [

@@ -15,6 +15,9 @@ import { useNavigationSpeechStop } from "./use-navigation-speech-stop";
 import { useNarration } from "./use-narration";
 import { usePractice } from "./use-practice";
 import { examples, questions, stepsFor, chunksFor } from "@/lib/division";
+/** Silence between the last sentence of a step and the next step in auto-play. */
+const STEP_PAUSE_MS = 1800;
+
 export function useLearningController() {
   const router = useRouter();
   const pathname = usePathname();
@@ -38,9 +41,21 @@ export function useLearningController() {
     [voice, setVoice] = useState(false);
   const autoplayStart = useRef<string | null>(null);
   const narration = useNarration();
-  const { voiceAvailable, speak, stopSpeaking } = narration;
+  const { voiceAvailable, speak, speakCues, stopSpeaking } = narration;
+  // Which spoken sentence of the current lesson step is playing (keyed by path,
+  // so it resets on its own whenever the step changes).
+  const [cueState, setCueState] = useState<{ path: string; i: number | null }>({
+    path: "",
+    i: null,
+  });
+  const cue = cueState.path === pathname ? cueState.i : null;
+  // During the pause after a step, the step panel fades out before moving on.
+  const [leavingPath, setLeavingPath] = useState("");
+  const leaving = leavingPath === pathname;
   const stopNavigationPlayback = useCallback(() => {
     stopSpeaking();
+    setCueState({ path: "", i: null });
+    setLeavingPath("");
     autoplayStart.current = null;
     setVoice(false);
     setPlaying(false);
@@ -55,15 +70,34 @@ export function useLearningController() {
       if (autoplayStart.current && autoplayStart.current !== pathname)
         return stopSpeaking;
       autoplayStart.current = null;
-      speak(stepsFor(ex.n, ex.d)[step].text, () => {
-        if (!playing) return;
-        if (step < 6)
-          router.replace(lessonPath(example, step + 1), { scroll: false });
-        else {
-          setVoice(false);
-          setPlaying(false);
-        }
-      });
+      const path = pathname;
+      let pause: ReturnType<typeof setTimeout> | undefined;
+      speakCues(
+        stepsFor(ex.n, ex.d)[step].cues.map((c) => c.say),
+        (i) => setCueState({ path, i }),
+        () => {
+          if (!playing) return setCueState({ path, i: null });
+          // A breather before the next step, so the child can take it in.
+          if (step < 6) setLeavingPath(path);
+          if (step < 6)
+            pause = setTimeout(
+              () =>
+                router.replace(lessonPath(example, step + 1), {
+                  scroll: false,
+                }),
+              STEP_PAUSE_MS,
+            );
+          else {
+            setVoice(false);
+            setPlaying(false);
+            setCueState({ path, i: null });
+          }
+        },
+      );
+      return () => {
+        clearTimeout(pause);
+        stopSpeaking();
+      };
     }
     return stopSpeaking;
   }, [
@@ -73,7 +107,7 @@ export function useLearningController() {
     ex.d,
     voice,
     isExample,
-    speak,
+    speakCues,
     stopSpeaking,
     playing,
     example,
@@ -116,6 +150,20 @@ export function useLearningController() {
     router.push(challengePath(0));
   }
   const chunks = chunksFor(ex.n, ex.d);
+  /** Read the current step aloud with highlights, without moving on. */
+  function readStep() {
+    const path = pathname;
+    speakCues(
+      steps[step].cues.map((c) => c.say),
+      (i) => setCueState({ path, i }),
+      () => setCueState({ path, i: null }),
+    );
+  }
+  // While auto-play talks, a step's new numbers wait for the sentence that
+  // mentions them; otherwise everything for the step shows straight away.
+  const revealCue = playing && isExample ? (cue ?? -1) : Infinity;
+  const focus =
+    cue !== null && cue >= 0 ? steps[step].cues[cue].focus : steps[step].anchor;
 
   return {
     tab,
@@ -136,6 +184,11 @@ export function useLearningController() {
     steps,
     q,
     chunks,
+    cue,
+    leaving,
+    revealCue,
+    focus,
+    readStep,
     setStep,
     setPlaying,
     setVoice,

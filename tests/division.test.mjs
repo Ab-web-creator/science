@@ -65,3 +65,55 @@ test("fewest bites uses the bite ladder", async () => {
   assert.equal(fewestBites(24), 3); // 384 : 16 → 20 + 2 + 2
   assert.equal(fewestBites(0), 0);
 });
+
+test("every step speaks short cues that point at the paper", () => {
+  for (const { n, d } of examples) {
+    for (const step of stepsFor(n, d)) {
+      assert.ok(step.cues.length >= 2, step.title);
+      assert.equal(step.text, step.cues.map((c) => c.say).join(" "));
+      assert.ok(
+        step.cues.every((c) => c.say.length <= 90),
+        step.title,
+      );
+    }
+  }
+});
+
+test("the step 2 chunk row appears with the sentence that says it", () => {
+  const cues = stepsFor(156, 12)[1].cues;
+  assert.equal(cues[0].focus, "fact-10");
+  assert.deepEqual(cues[1], { say: "10 × 12 = 120.", focus: "sub1" });
+});
+
+test("Orbit suggests a bigger bite only when one at least twice as big fits", async () => {
+  const { biggerBite } = await import(
+    `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`
+  );
+  assert.equal(biggerBite(144, 12, 1), 10); // 10 × 12 = 120 fits in 144
+  assert.equal(biggerBite(120, 12, 2), 10); // the screenshot case
+  assert.equal(biggerBite(36, 12, 2), null); // only 2 × 12 fits: no nudge
+  assert.equal(biggerBite(36, 12, 1), 2);
+  assert.equal(biggerBite(475 - 300, 15, 10), null); // 10 was already the biggest that fits
+});
+
+test("no sentence puts a colon right after a number unless it means division", () => {
+  // "12: 13" would be read aloud as "12 divided by 13".
+  for (const { n, d } of examples)
+    for (const step of stepsFor(n, d))
+      for (const { say } of step.cues)
+        for (const m of say.matchAll(/(\d+)\s*:\s*(\d+)/g))
+          assert.equal(`${m[1]}:${m[2]}`, `${n}:${d}`, say);
+});
+
+test("'10 groups' is cued exactly on 'so write 10 groups beside it'", () => {
+  const cues = stepsFor(156, 12)[1].cues;
+  assert.deepEqual(cues.at(-2), { say: "120 fits inside 156,", focus: "sub1" });
+  assert.deepEqual(cues.at(-1), {
+    say: "so write 10 groups beside it.",
+    focus: "groups",
+  });
+  assert.match(
+    stepsFor(156, 12)[1].text,
+    /120 fits inside 156, so write 10 groups beside it\./,
+  );
+});

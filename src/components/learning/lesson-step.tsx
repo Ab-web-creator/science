@@ -1,7 +1,7 @@
-import { NarrationControls } from "./narration-controls";
 import type { LearningState } from "@/hooks/use-learning";
+
 export function LessonStep(state: LearningState & { onFeed: () => void }) {
-  const { step, steps, setStep, setPlaying, example } = state;
+  const { step, steps, setStep, setPlaying, example, leaving } = state;
   return (
     <section className="step-panel">
       <div className="flex items-center justify-between">
@@ -23,9 +23,13 @@ export function LessonStep(state: LearningState & { onFeed: () => void }) {
           </button>
         ))}
       </div>
-      <div key={`${example}-${step}`} className="step-content reveal">
+      <div
+        key={`${example}-${step}`}
+        className={`step-content soft-fade ${leaving ? "out" : ""}`}
+      >
         <h2>{steps[step].title}</h2>
-        <p>{steps[step].text}</p>
+        <p className="step-text">{steps[step].text}</p>
+        <p className="look-hint">👈 Look at Orbit’s note on the paper.</p>
         {(step === 1 || step === 6) && (
           <button className="feed-invite" onClick={state.onFeed}>
             😋{" "}
@@ -35,7 +39,6 @@ export function LessonStep(state: LearningState & { onFeed: () => void }) {
           </button>
         )}
       </div>
-      <NarrationControls text={steps[step].text} />
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { NarrationControls } from "./narration-controls";
+import { TypedBite } from "./typed-bite";
 
 /** The child's own written record of each bite in the Feed Orbit game. */
 export function HapPaper({
@@ -7,7 +7,8 @@ export function HapPaper({
   d,
   bites,
   best,
-  message,
+  typing,
+  onTyped,
   onUndo,
   onRestart,
 }: {
@@ -15,20 +16,23 @@ export function HapPaper({
   d: number;
   bites: number[];
   best: number;
-  message: string;
+  /** Index of the bite being typed out, or -1 when the paper is still. */
+  typing: number;
+  onTyped: () => void;
   onUndo: () => void;
   onRestart: () => void;
 }) {
   const eaten = bites.reduce((a, b) => a + b, 0);
   const left = n - eaten * d;
-  const done = left < d;
+  // Finished only once the last bite has been typed out.
+  const done = left < d && typing < 0;
   const log = useRef<HTMLDivElement>(null);
   useEffect(() => {
     log.current?.scrollTo({
       top: log.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [bites.length]);
+  });
   return (
     <section className="paper-panel chunk-paper hap-paper">
       <div className="flex items-center justify-between">
@@ -48,31 +52,20 @@ export function HapPaper({
         {bites.map((g, i) => {
           const after =
             n - bites.slice(0, i + 1).reduce((a, b) => a + b, 0) * d;
+          const last = i === bites.length - 1 && after < d;
           return (
-            <div key={i} className="reveal">
-              <div className="chunk-row subtraction">
-                <span>−{g * d}</span>
-                <small>
-                  {g} × {d}
-                  <b>
-                    {g} {g === 1 ? "group" : "groups"}
-                  </b>
-                </small>
-              </div>
-              <div className="chunk-row">
-                <span>{after}</span>
-                <small>
-                  {after < d ? (after ? "rest" : "nothing left") : "left over"}
-                </small>
-              </div>
-            </div>
+            <TypedBite
+              key={i}
+              g={g}
+              d={d}
+              after={after}
+              total={last ? `${bites.join(" + ")} = ${eaten} groups` : null}
+              animate={i === typing}
+              waiting={i === bites.length - 1 && after >= d}
+              onDone={onTyped}
+            />
           );
         })}
-        {done && (
-          <div className="chunk-total reveal">
-            {bites.join(" + ")} = {eaten} groups
-          </div>
-        )}
       </div>
       {done ? (
         <div className="hap-finish reveal">
@@ -91,12 +84,11 @@ export function HapPaper({
         <div className="hap-actions">
           <button
             className="text-button"
-            disabled={!bites.length}
+            disabled={!bites.length || typing >= 0}
             onClick={onUndo}
           >
             ↶ Undo last bite
           </button>
-          <NarrationControls text={message} compact />
         </div>
       )}
     </section>

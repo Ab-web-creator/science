@@ -12,20 +12,31 @@ export function LessonView() {
   const state = useLearning();
   const [view, setView] = useState("steps");
   const [feeding, setFeeding] = useState(false);
+  // Auto-play in Feed Orbit reads Orbit's messages; it carries over from the lesson.
+  const [feedVoice, setFeedVoice] = useState(false);
   function startFeeding() {
+    setFeedVoice(state.playing);
     state.setPlaying(false);
     state.setVoice(false);
     setFeeding(true);
   }
   return (
     <section className="screen-page lesson-screen">
-      <LessonIntro {...state} feeding={feeding} onFeed={startFeeding} />
+      <LessonIntro
+        {...state}
+        feeding={feeding}
+        onFeed={startFeeding}
+        onBack={() => setFeeding(false)}
+        feedVoice={feedVoice}
+        onToggleFeedVoice={() => setFeedVoice(!feedVoice)}
+      />
       {feeding ? (
         <HapGame
           key={state.example}
           n={state.ex.n}
           d={state.ex.d}
           story={state.ex.story}
+          autoRead={feedVoice}
         />
       ) : (
         <>
@@ -64,16 +75,7 @@ export function LessonView() {
             next. Match his teacher’s notation.
           </p>
         </HelpDialog>
-        {feeding ? (
-          <button
-            className="button secondary"
-            onClick={() => setFeeding(false)}
-          >
-            ← Back to the steps
-          </button>
-        ) : (
-          <LessonActions {...state} />
-        )}
+        {!feeding && <LessonActions {...state} />}
       </div>
     </section>
   );

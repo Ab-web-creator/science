@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tabPaths } from "@/lib/learning-routes";
 import type { LearningState } from "@/hooks/use-learning";
+import { VoiceSettings } from "./voice-settings";
 export function Header(state: LearningState) {
   const { tab, stars, setPlaying } = state;
   const lesson = usePathname().match(/^\/learn\/(division|multiplication|percentages)\/[^/]+\/\d+$/);
@@ -46,9 +47,10 @@ export function Header(state: LearningState) {
             </Link>
           ))}
         </nav>
-        <div className="header-status hidden items-center gap-3 sm:flex">
-          <span className="star-count">✦ {stars}</span>
-          <span className="avatar">A</span>
+        <div className="header-status flex items-center gap-3">
+          <span className="star-count header-optional">✦ {stars}</span>
+          <span className="avatar header-optional">A</span>
+          <VoiceSettings />
         </div>
       </div>
     </header>

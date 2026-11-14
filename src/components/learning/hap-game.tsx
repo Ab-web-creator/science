@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
-import { biteSizes, fewestBites, takeBite } from "@/lib/division";
+import { useRef, useState } from "react";
+import { pickCheer } from "@/lib/narration";
+import { useOrbitVoice } from "@/hooks/use-orbit-voice";
+import { biggerBite, biteSizes, fewestBites, takeBite } from "@/lib/division";
 import { Robot } from "./robot";
 import { HapPaper } from "./hap-paper";
 
@@ -11,10 +13,13 @@ export function HapGame({
   n,
   d,
   story,
+  autoRead,
 }: {
   n: number;
   d: number;
   story: string;
+  /** Read each of Orbit's messages aloud as it appears (the Auto-play button). */
+  autoRead: boolean;
 }) {
   const [bites, setBites] = useState<number[]>([]);
   const [mood, setMood] = useState<Mood>("hungry");
@@ -23,6 +28,18 @@ export function HapGame({
   );
   const [preview, setPreview] = useState(0);
   const [tries, setTries] = useState(0); // re-triggers the chomp/bounce animation
+  // Every correct bite gets a cheer, varied so it stays fun ("Hurray!", "Yay!"…).
+  const lastCheer = useRef("");
+  function cheer() {
+    lastCheer.current = pickCheer(lastCheer.current);
+    return lastCheer.current;
+  }
+  // Gentle nudge towards bigger bites: at most twice per game, never blocking.
+  const [nudges, setNudges] = useState(0);
+  const [suggest, setSuggest] = useState(0);
+  // The paper types each new bite out slowly; bites wait until it is written.
+  const [typing, setTyping] = useState(-1);
+  useOrbitVoice(message, tries, autoRead);
 
   const eaten = bites.reduce((a, b) => a + b, 0);
   const left = n - eaten * d;
@@ -34,40 +51,56 @@ export function HapGame({
   function bite(groups: number) {
     const result = takeBite(left, d, groups);
     setTries(tries + 1);
+    setSuggest(0);
     if (!result.fits) {
       setMood("bounce");
       setMessage(
-        `${groups} × ${d} = ${groups * d}. That’s more than ${left}! Too big — it doesn’t fit. Try a smaller bite.`,
+        `No, no! ${groups} × ${d} = ${groups * d}. That’s more than ${left}! Too big — it doesn’t fit. Try a smaller bite.`,
       );
       return;
     }
     const next = [...bites, groups];
     setBites(next);
+    setTyping(next.length - 1);
     if (result.left < d) {
       setMood("full");
       const total = next.reduce((a, b) => a + b, 0);
       setMessage(
         result.left
-          ? `Hap! ${result.left} is smaller than ${d}, so no whole group fits. ${n} : ${d} = ${total} rest ${result.left}.`
-          : `Hap! All ${n} stars eaten — nothing left over! ${n} : ${d} = ${total}.`,
+          ? `${cheer()} ${result.left} is smaller than ${d}, so no whole group fits. ${n} : ${d} = ${total} rest ${result.left}.`
+          : `${cheer()} All ${n} stars eaten — nothing left over! ${n} : ${d} = ${total}.`,
       );
     } else {
       setMood("chomp");
-      setMessage(
-        `Hap! ${groups} × ${d} = ${groups * d}. ${result.left} stars left. Still hungry!`,
-      );
+      const big = nudges < 2 ? biggerBite(result.left, d, groups) : null;
+      if (big) {
+        setNudges(nudges + 1);
+        setSuggest(big);
+        setMessage(
+          `${cheer()} ${result.left} stars left. Did you know that ${big} × ${d} = ${big * d} fits in ${result.left}? Want to try a bigger bite?`,
+        );
+      } else
+        setMessage(
+          `${cheer()} ${groups} × ${d} = ${groups * d}. ${result.left} stars left. Still hungry!`,
+        );
     }
   }
 
   function undo() {
     setBites(bites.slice(0, -1));
+    setTyping(-1);
     setMood("hungry");
+    setSuggest(0);
+    setTries(tries + 1);
     setMessage("Okay, I spat that bite out. Pick again!");
   }
 
   function restart() {
     setBites([]);
+    setTyping(-1);
     setMood("hungry");
+    setSuggest(0);
+    setNudges(0);
     setTries(tries + 1);
     setMessage(`Again! Can you feed me all ${n} stars in ${best} bites?`);
   }
@@ -120,7 +153,8 @@ export function HapGame({
           {biteSizes.map((g) => (
             <button
               key={g}
-              disabled={done}
+              className={g === suggest && !done ? "suggest" : ""}
+              disabled={done || typing >= 0}
               onClick={() => bite(g)}
               onPointerEnter={() => setPreview(g)}
               onPointerLeave={() => setPreview(0)}
@@ -141,7 +175,8 @@ export function HapGame({
         d={d}
         bites={bites}
         best={best}
-        message={message}
+        typing={typing}
+        onTyped={() => setTyping(-1)}
         onUndo={undo}
         onRestart={restart}
       />
